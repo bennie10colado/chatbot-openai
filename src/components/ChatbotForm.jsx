@@ -22,8 +22,15 @@ function ChatbotForm() {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/openai",
-        formData
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
+
+      console.log("Resposta da API da OpenAI", response.data, response.config);
 
       if (response.status === 200) {
         console.log("Chatbot criado com sucesso!");
