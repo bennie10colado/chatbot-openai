@@ -1,28 +1,34 @@
-import React, { useState } from 'react';
-import '../styles/ChatScreen.css'; 
+import React, { useState } from "react";
+import { Link } from 'react-router-dom'; 
+import "../styles/ChatScreen.css";
 
 function ChatScreen() {
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
 
   const sendMessage = (e) => {
     e.preventDefault();
-    if (input.trim() !== '') {
+    if (input.trim() !== "") {
       const newMessage = {
         id: messages.length,
         text: input,
-        sender: 'user'
+        sender: "user",
       };
       setMessages([...messages, newMessage]);
-      setInput('');
-      // lógica para enviar a mensagem ao backend ou API
+      setInput("");
+      // lógica para enviar a mensagem ao backend ou API posteriormente
     }
   };
 
   return (
     <div className="chat-screen-container">
+      <div className="nav-back">
+        <Link to="/" className="back-button">
+          Voltar para a HomePage
+        </Link>{" "}
+      </div>
       <div className="message-area">
-        {messages.map(message => (
+        {messages.map((message) => (
           <p key={message.id} className={`message ${message.sender}`}>
             {message.text}
           </p>
@@ -35,7 +41,9 @@ function ChatScreen() {
           onChange={(e) => setInput(e.target.value)}
           className="message-input"
         />
-        <button type="submit" className="send-button">Enviar</button>
+        <button type="submit" className="send-button">
+          Enviar
+        </button>
       </form>
     </div>
   );

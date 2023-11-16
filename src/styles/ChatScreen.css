@@ -1,52 +1,86 @@
 .chat-screen-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background-color: #f5f5f5;
-  }
-  
-  .message-area {
-    flex-grow: 1;
-    padding: 20px;
-    overflow-y: auto;
-  }
-  
-  .message {
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 10px;
-    display: inline-block;
-  }
-  
-  .message.user {
-    background-color: #dcf8c6;
-    align-self: flex-end;
-  }
-  
-  .message.bot {
-    background-color: #ffffff;
-    align-self: flex-start;
-  }
-  
-  .message-form {
-    display: flex;
-    padding: 20px;
-  }
-  
-  .message-input {
-    flex-grow: 1;
-    padding: 10px;
-    border-radius: 20px;
-    border: 1px solid #ddd;
-    margin-right: 10px;
-  }
-  
-  .send-button {
-    padding: 10px 20px;
-    border-radius: 20px;
-    border: none;
-    background-color: #2b8aed;
-    color: white;
-    cursor: pointer;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #eef2f7;
+}
+
+.message-area {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: white;
+}
+
+.message {
+  margin: 10px 0;
+  padding: 10px 20px;
+  border-radius: 20px;
+  max-width: 80%;
+}
+
+.message.user {
+  background-color: rgba(184, 193, 224, 0.751);
+  align-self: flex-end;
+  border-bottom-right-radius: 0;
+}
+
+.message.bot {
+  background-color: #f0f0f0;
+  align-self: flex-start;
+  border-bottom-left-radius: 0;
+}
+
+.message-form {
+  display: flex;
+  padding: 20px;
+  border-top: 1px solid #ddd;
+}
+
+.message-input {
+  flex-grow: 1;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+  background-color: white;
+}
+
+.send-button {
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  background-color: #6a11cb;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.send-button:hover {
+  background-color: #31095d ;
+}
+
+.nav-back {
+  text-align: left;
+  padding: 10px;
+}
+
+.back-button {
+  text-decoration: none;
+  color: #6a11cb;
+  background-color: #ffffff;
+  padding: 10px 15px;
+  border-radius: 30px;
+  border: 2px solid #6a11cb;
+  margin-bottom: 20px;
+  display: inline-block;
+  transition: all 0.3s;
+}
+
+.back-button:hover,
+.back-button:focus {
+  background-color: #6a11cb;
+  color: white;
+  border: 2px solid transparent;
+  transform: translateY(-5px);
+}
