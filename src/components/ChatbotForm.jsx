@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 import "../styles/ChatbotForm.css";
 
@@ -9,9 +10,29 @@ function ChatbotForm() {
   const [instructions, setInstructions] = useState("");
   const [file, setFile] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // lidar com logica, como envio dos dados para um backend ou diretamente para a API da OpenAI? estudar melhor como fazer isso
+
+    const formData = new FormData();
+    formData.append("name", botName);
+    formData.append("version", botVersion);
+    formData.append("instructions", instructions);
+    formData.append("file", file);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/openai",
+        formData
+      );
+
+      if (response.status === 200) {
+        console.log("Chatbot criado com sucesso!");
+      } else {
+        console.error("Erro ao criar o chatbot");
+      }
+    } catch (error) {
+      console.error("Erro ao enviar a solicitação para o backend", error);
+    }
   };
 
   return (
