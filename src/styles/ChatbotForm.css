@@ -1,0 +1,17 @@
+.chatbot-form {
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    margin: auto;
+  }
+  
+  .chatbot-form label {
+    margin-top: 10px;
+  }
+  
+  .chatbot-form input,
+  .chatbot-form textarea,
+  .chatbot-form button {
+    margin-top: 5px;
+  }
+  

@@ -1,0 +1,28 @@
+.homepage {
+    text-align: center;
+  }
+  
+  .homepage-header {
+    background-color: #282c34;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+  }
+  
+  .homepage-nav {
+    margin-top: 20px;
+  }
+  
+  .nav-link {
+    margin: 10px;
+    padding: 10px;
+    background-color: #61dafb;
+    color: #282c34;
+    text-decoration: none;
+    border-radius: 5px;
+  }
+  
