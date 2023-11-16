@@ -11,30 +11,21 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
-const uri =
-  "mongodb+srv://admin:chatbot123@cluster0.3nezhku.mongodb.net/?retryWrites=true&w=majority";
-
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
+mongoose.connect("mongodb+srv://admin:chatbot123@cluster0.3nezhku.mongodb.net/?retryWrites=true&w=majority", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
-async function run() {
-  try {
-    await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
-  } finally {
-    await client.close();
-  }
-}
-run().catch(console.dir);
+const chatbotSchema = new mongoose.Schema({
+  name: String,
+  version: String,
+  instructions: String,
+  openaiResponse: String,
+  fileContent: String,
+});
+
+
+const ChatbotModel = mongoose.model("Chatbot", chatbotSchema);
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -77,10 +68,11 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
       version,
       instructions: req.body.instructions,
       openaiResponse,
+      fileContent,
     });
     console.log("Antes de inserir no MongoDB");
     try {
-      const result = await chatbot.save({ wtimeout: 30000 });
+      const result = await chatbotData.save();
       console.log("Depois de inserir no MongoDB:", result);
     } catch (error) {
       console.error("Erro ao salvar no MongoDB:", error);
@@ -91,13 +83,6 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
     console.error("Erro ao chamar a API do OpenAI:", error);
     res.status(500).json({ error: "Erro interno ao chamar a API do OpenAI" });
   }
-});
-
-const ChatbotModel = mongoose.model("Chatbot", {
-  name: String,
-  version: String,
-  instructions: String,
-  openaiResponse: String,
 });
 
 app.use("/", (req, res, next) => {
