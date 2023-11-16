@@ -2,10 +2,14 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const axios = require("axios");
+const cors = require("cors");
 const multer = require("multer");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+app.use(cors());
+app.use(bodyParser.json());
 
 mongoose.connect(
   "mongodb+srv://admin:chatbot123@cluster0.3nezhku.mongodb.net/?retryWrites=true&w=majority",
@@ -18,28 +22,27 @@ mongoose.connect(
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-app.use(bodyParser.json());
-
 app.post("/api/openai", upload.single("file"), async (req, res) => {
-  const { name, version, instructions } = req.body;
-
-  if (!req.file) {
-    return res.status(400).json({ error: "Nenhum arquivo enviado" });
-  }
-
   try {
+    const file = req.file;
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
-      {
-        prompt: instructions,
-        documents: req.file.buffer.toString(),
-      }
+      req.body
     );
-
     res.json(response.data);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao chamar a API do OpenAI" });
+    console.error("Erro ao chamar a API do OpenAI:", error);
+    res.status(500).json({ error: "Erro interno ao chamar a API do OpenAI" });
   }
+});
+
+app.use("/", (req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Max-Age", "1800");
+  res.setHeader("Access-Control-Allow-Headers", "content-type");
+  res.setHeader("Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, PATCH, OPTIONS");
+  next();
 });
 
 app.get("/api/openai", (req, res) => {
