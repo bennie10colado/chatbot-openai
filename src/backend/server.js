@@ -69,10 +69,6 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
 
     const openaiResponse2 = allContents[0];
 
-    //console.log("Todas as escolhas:", allContents);
-    //console.log("all choices: ", allChoices);
-    //console.log("open ai response 2: ", openaiResponse2);
-
     const openaiResponse = response.data.choices[0].message.content;
     const { name, version } = req.body;
 
