@@ -4,8 +4,10 @@ const mongoose = require("mongoose");
 const axios = require("axios");
 const cors = require("cors");
 const multer = require("multer");
+const expressWS = require("express-ws");
 
 const app = express();
+expressWS(app);
 const PORT = process.env.PORT || 5000;
 const uri =
   "mongodb+srv://admin:chatbot123@cluster0.3nezhku.mongodb.net/elife-chatbot?retryWrites=true&w=majority";
@@ -36,6 +38,17 @@ const ChatbotModel = mongoose.model("Chatbot", chatbotSchema);
 // Multer Configuration
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+
+// WebSocket Configuration
+app.ws("/ws", (ws, req) => {
+  console.log("Nova conexão WebSocket");
+
+  ws.on("message", (message) => {
+    console.log("Mensagem recebida:", message);
+
+    ws.send("Resposta do WebSocket!!!!");
+  });
+});
 
 // OpenAI API Endpoint
 app.post("/api/openai", upload.single("file"), async (req, res) => {
@@ -86,6 +99,12 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
     } catch (error) {
       console.error("Erro ao salvar no MongoDB:", error);
     }
+
+    app.getWss().clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send("Nova mensagem do servidor");
+      }
+    });
 
     res.json({ openaiResponse });
   } catch (error) {
