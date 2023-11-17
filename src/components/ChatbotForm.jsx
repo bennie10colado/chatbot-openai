@@ -64,7 +64,7 @@ function ChatbotForm() {
           value={botVersion}
           onChange={(e) => setBotVersion(e.target.value)}
         >
-          <option value="3.5">GPT-3.5</option>
+          <option value="GPT-3.5-turbo">GPT-3.5-turbo</option>
         </select>
 
         <label htmlFor="instructions">Prompt:</label>

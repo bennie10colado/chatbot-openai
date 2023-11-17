@@ -6,18 +6,21 @@ const cors = require("cors");
 const multer = require("multer");
 const expressWS = require("express-ws");
 const WebSocket = require("ws");
+require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env
+
+// Restante do código
+const URI = process.env.MONGODB_URI;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const app = express();
 expressWS(app);
 const PORT = process.env.PORT || 5000;
-const uri =
-  "mongodb+srv://admin:chatbot123@cluster0.3nezhku.mongodb.net/elife-chatbot?retryWrites=true&w=majority";
 
 app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB Connection
-mongoose.connect(uri, {
+mongoose.connect(URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -76,7 +79,7 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
       },
       {
         headers: {
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
         },
       }
     );
