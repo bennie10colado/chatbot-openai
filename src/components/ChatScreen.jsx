@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { Link } from 'react-router-dom'; 
+import { Link } from "react-router-dom";
+import io from "socket.io-client";
+import { useEffect } from "react";
 import "../styles/ChatScreen.css";
 
 function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const socket = io("http://localhost:5000");
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -16,9 +19,20 @@ function ChatScreen() {
       };
       setMessages([...messages, newMessage]);
       setInput("");
-      // lógica para enviar a mensagem ao backend ou API posteriormente
+      socket.emit("message", { content: input, role: "user" });
     }
   };
+
+  useEffect(() => {
+    socket.on("message", (message) => {
+      console.log("Mensagem recebida:", message);
+      setMessages([...messages, message]); 
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [messages, socket]);
 
   return (
     <div className="chat-screen-container">

@@ -5,6 +5,7 @@ const axios = require("axios");
 const cors = require("cors");
 const multer = require("multer");
 const expressWS = require("express-ws");
+const WebSocket = require("ws");
 
 const app = express();
 expressWS(app);
@@ -102,7 +103,7 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
 
     app.getWss().clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send("Nova mensagem do servidor");
+        client.send(openaiResponse);
       }
     });
 
