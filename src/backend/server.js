@@ -25,7 +25,6 @@ mongoose.connect(URI, {
   useUnifiedTopology: true,
 });
 
-// MongoDB Schema and Model
 const chatbotSchema = new mongoose.Schema(
   {
     name: String,
@@ -39,7 +38,6 @@ const chatbotSchema = new mongoose.Schema(
 
 const ChatbotModel = mongoose.model("Chatbot", chatbotSchema);
 
-// Multer Configuration
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -54,7 +52,6 @@ app.ws("/ws", (ws, req) => {
   });
 });
 
-// OpenAI API Endpoint
 app.post("/api/openai", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -83,6 +80,12 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
         },
       }
     );
+
+    const allChoices = response.data.choices;
+
+    const allContents = allChoices.map((choice) => choice.message.content);
+
+    const openaiResponse2 = allContents[0];
 
     const openaiResponse = response.data.choices[0].message.content;
     const { name, version } = req.body;
@@ -117,7 +120,6 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
   }
 });
 
-// CORS Configuration
 app.use("/", (req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -130,7 +132,6 @@ app.use("/", (req, res, next) => {
   next();
 });
 
-// Routes
 app.get("/api/openai", (req, res) => {
   res.status(404).send("Rota não encontrada");
 });
@@ -149,7 +150,6 @@ app.get("/get-chatbots", async (req, res) => {
   }
 });
 
-// Start the Server
 app.listen(PORT, () => {
   console.log(`Servidor backend rodando na porta ${PORT}`);
 });
