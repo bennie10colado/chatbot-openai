@@ -7,23 +7,27 @@ const multer = require("multer");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const uri =
+  "mongodb+srv://admin:chatbot123@cluster0.3nezhku.mongodb.net/elife-chatbot?retryWrites=true&w=majority";
 
 app.use(cors());
 app.use(bodyParser.json());
 
-mongoose.connect("mongodb+srv://admin:chatbot123@cluster0.3nezhku.mongodb.net/?retryWrites=true&w=majority", {
+mongoose.connect(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-const chatbotSchema = new mongoose.Schema({
-  name: String,
-  version: String,
-  instructions: String,
-  openaiResponse: String,
-  fileContent: String,
-});
-
+const chatbotSchema = new mongoose.Schema(
+  {
+    name: String,
+    version: String,
+    instructions: String,
+    openaiResponse: String,
+    fileContent: String,
+  },
+  { collection: "chatbot-collection" }
+);
 
 const ChatbotModel = mongoose.model("Chatbot", chatbotSchema);
 
@@ -47,7 +51,6 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
       {
         model: "gpt-3.5-turbo",
         messages: [
-          { role: "user", content: "Say this is a test!" },
           { role: "user", content: fileContent },
           { role: "user", content: req.body.instructions },
         ],
@@ -60,9 +63,19 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
       }
     );
 
-    const openaiResponse = response.data.choices[0].message.content;
+    const allChoices = response.data.choices;
 
+    const allContents = allChoices.map((choice) => choice.message.content);
+
+    const openaiResponse2 = allContents[0];
+
+    //console.log("Todas as escolhas:", allContents);
+    //console.log("all choices: ", allChoices);
+    //console.log("open ai response 2: ", openaiResponse2);
+
+    const openaiResponse = response.data.choices[0].message.content;
     const { name, version } = req.body;
+
     const chatbotData = new ChatbotModel({
       name,
       version,
@@ -70,7 +83,9 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
       openaiResponse,
       fileContent,
     });
+
     console.log("Antes de inserir no MongoDB");
+
     try {
       const result = await chatbotData.save();
       console.log("Depois de inserir no MongoDB:", result);
@@ -103,6 +118,16 @@ app.get("/api/openai", (req, res) => {
 
 app.get("/", (req, res) => {
   res.send("Seja bem-vindo à API do Chatbot!");
+});
+
+app.get("/get-chatbots", async (req, res) => {
+  try {
+    const chatbots = await ChatbotModel.find();
+    res.json({ chatbots });
+  } catch (error) {
+    console.error("Erro ao buscar chatbots no MongoDB:", error);
+    res.status(500).json({ error: "Erro interno ao buscar chatbots" });
+  }
 });
 
 app.listen(PORT, () => {
