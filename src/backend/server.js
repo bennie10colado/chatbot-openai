@@ -6,9 +6,8 @@ const cors = require("cors");
 const multer = require("multer");
 const expressWS = require("express-ws");
 const WebSocket = require("ws");
-require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env
+require("dotenv").config();
 
-// Restante do código
 const URI = process.env.MONGODB_URI;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -81,13 +80,14 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
       }
     );
 
-    const allChoices = response.data.choices;
+    const openaiResponse = response.data.choices[0]?.message?.content;
 
-    const allContents = allChoices.map((choice) => choice.message.content);
+    if (!openaiResponse) {
+      return res
+        .status(500)
+        .json({ error: "Resposta da OpenAI não encontrada" });
+    }
 
-    const openaiResponse2 = allContents[0];
-
-    const openaiResponse = response.data.choices[0].message.content;
     const { name, version } = req.body;
 
     const chatbotData = new ChatbotModel({
@@ -103,17 +103,11 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
     try {
       const result = await chatbotData.save();
       console.log("Depois de inserir no MongoDB:", result);
+      res.json({ openaiResponse });
     } catch (error) {
       console.error("Erro ao salvar no MongoDB:", error);
+      res.status(500).json({ error: "Erro interno ao salvar no MongoDB" });
     }
-
-    app.getWss().clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(openaiResponse);
-      }
-    });
-
-    res.json({ openaiResponse });
   } catch (error) {
     console.error("Erro ao chamar a API do OpenAI:", error);
     res.status(500).json({ error: "Erro interno ao chamar a API do OpenAI" });
