@@ -6,12 +6,53 @@ import "../styles/ChatbotForm.css";
 
 function ChatbotForm() {
   const [botName, setBotName] = useState("");
-  const [botVersion, setBotVersion] = useState("3.5");
+  const [botVersion, setBotVersion] = useState("GPT-3.5-turbo");
   const [instructions, setInstructions] = useState("");
   const [file, setFile] = useState(null);
+  const [errors, setErrors] = useState({
+    botName: "",
+    instructions: "",
+    file: "",
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setErrors({
+      botName: "",
+      instructions: "",
+      file: "",
+    });
+
+    let hasError = false;
+
+    if (!botName) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        botName: "Nome do Chatbot é obrigatório",
+      }));
+      hasError = true;
+    }
+
+    if (!instructions) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        instructions: "Instruções são obrigatórias",
+      }));
+      hasError = true;
+    }
+
+    if (!file) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        file: "Arquivo é obrigatório",
+      }));
+      hasError = true;
+    }
+
+    if (hasError) {
+      return;
+    }
 
     const formData = new FormData();
     formData.append("name", botName);
@@ -34,6 +75,11 @@ function ChatbotForm() {
 
       if (response.status === 200) {
         console.log("Chatbot criado com sucesso!");
+        setErrors({
+          botName: "",
+          instructions: "",
+          file: "",
+        });
       } else {
         console.error("Erro ao criar o chatbot");
       }
@@ -50,6 +96,10 @@ function ChatbotForm() {
         </Link>
       </div>
       <form onSubmit={handleSubmit} className="chatbot-form">
+        {errors.allFields && (
+          <div className="error-message show-message">{errors.allFields}</div>
+        )}
+
         <label htmlFor="botName">Nome do Chatbot:</label>
         <input
           type="text"
@@ -57,6 +107,9 @@ function ChatbotForm() {
           value={botName}
           onChange={(e) => setBotName(e.target.value)}
         />
+        {errors.botName && (
+          <div className="error-message show-message">{errors.botName}</div>
+        )}
 
         <label htmlFor="botVersion">Versão do Chatbot:</label>
         <select
@@ -74,6 +127,11 @@ function ChatbotForm() {
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
         />
+        {errors.instructions && (
+          <div className="error-message show-message">
+            {errors.instructions}
+          </div>
+        )}
 
         <label htmlFor="file">Documento (.txt):</label>
         <input
@@ -82,6 +140,9 @@ function ChatbotForm() {
           accept=".txt"
           onChange={(e) => setFile(e.target.files[0])}
         />
+        {errors.file && (
+          <div className="error-message show-message">{errors.file}</div>
+        )}
 
         <button type="submit">Criar Chatbot</button>
       </form>

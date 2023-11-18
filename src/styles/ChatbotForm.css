@@ -68,5 +68,18 @@
 }
 
 .chatbot-form button:hover {
-  background-color: #31095d ;
+  background-color: #31095d;
+}
+
+.error-message {
+  background-color: #ff4d4f; 
+  color: #f3e8e8; 
+  padding: 8px;
+  border-radius: 4px;
+  margin-top: 8px;
+  display: none; 
+}
+
+.show-message {
+  display: block; 
 }
