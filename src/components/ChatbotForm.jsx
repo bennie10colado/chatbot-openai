@@ -29,7 +29,7 @@ function ChatbotForm() {
     if (!botName) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        botName: "Nome do Chatbot é obrigatório",
+        botName: "Nome do Chatbot é obrigatório.",
       }));
       hasError = true;
     }
@@ -37,7 +37,7 @@ function ChatbotForm() {
     if (!instructions) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        instructions: "Instruções são obrigatórias",
+        instructions: "Instruções são obrigatórias.",
       }));
       hasError = true;
     }
@@ -45,7 +45,7 @@ function ChatbotForm() {
     if (!file) {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        file: "Arquivo é obrigatório",
+        file: "Arquivo é obrigatório.",
       }));
       hasError = true;
     }
