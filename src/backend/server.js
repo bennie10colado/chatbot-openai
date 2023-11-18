@@ -51,6 +51,32 @@ app.ws("/ws", (ws, req) => {
   });
 });
 
+const processOpenAICall = async (fileContent, instructions) => {
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "user", content: fileContent },
+          { role: "user", content: instructions },
+        ],
+        temperature: 0.7,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        },
+      }
+    );
+
+    return response.data.choices[0]?.message?.content;
+  } catch (error) {
+    console.error("Erro ao chamar a API do OpenAI:", error);
+    throw new Error("Erro interno ao chamar a API do OpenAI");
+  }
+};
+
 app.post("/api/openai", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -63,24 +89,10 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
       return res.status(400).json({ error: "Instruções não fornecidas" });
     }
 
-    const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "user", content: fileContent },
-          { role: "user", content: req.body.instructions },
-        ],
-        temperature: 0.7,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-        },
-      }
+    const openaiResponse = await processOpenAICall(
+      fileContent,
+      req.body.instructions
     );
-
-    const openaiResponse = response.data.choices[0]?.message?.content;
 
     if (!openaiResponse) {
       return res
@@ -109,8 +121,8 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
       res.status(500).json({ error: "Erro interno ao salvar no MongoDB" });
     }
   } catch (error) {
-    console.error("Erro ao chamar a API do OpenAI:", error);
-    res.status(500).json({ error: "Erro interno ao chamar a API do OpenAI" });
+    console.error("Erro inesperado:", error.message);
+    res.status(500).json({ error: "Erro inesperado" });
   }
 });
 
