@@ -1,6 +1,7 @@
 const axios = require("axios");
+require("dotenv").config();
 
-const openaiApiKey = "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";
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const data = {
   model: "gpt-3.5-turbo",
@@ -12,7 +13,7 @@ axios
   .post("https://api.openai.com/v1/chat/completions", data, {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${openaiApiKey}`,
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
   })
   .then((response) => {

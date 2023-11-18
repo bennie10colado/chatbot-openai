@@ -10,10 +10,10 @@ require("dotenv").config();
 
 const URI = process.env.MONGODB_URI;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const PORT = process.env.PORT || 5000;
 
 const app = express();
 expressWS(app);
-const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -24,6 +24,7 @@ mongoose.connect(URI, {
   useUnifiedTopology: true,
 });
 
+// MongoDB Schema and Model
 const chatbotSchema = new mongoose.Schema(
   {
     name: String,
@@ -34,9 +35,9 @@ const chatbotSchema = new mongoose.Schema(
   },
   { collection: "chatbot-collection" }
 );
-
 const ChatbotModel = mongoose.model("Chatbot", chatbotSchema);
 
+// Multer Configuration
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -51,6 +52,7 @@ app.ws("/ws", (ws, req) => {
   });
 });
 
+// Processing call to the endpoint of openai
 const processOpenAICall = async (fileContent, instructions) => {
   try {
     const response = await axios.post(
@@ -77,6 +79,7 @@ const processOpenAICall = async (fileContent, instructions) => {
   }
 };
 
+//API
 app.post("/api/openai", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -126,6 +129,7 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
   }
 });
 
+//Middleware to deal with CORS headres errors
 app.use("/", (req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -138,12 +142,19 @@ app.use("/", (req, res, next) => {
   next();
 });
 
-app.get("/api/openai", (req, res) => {
-  res.status(404).send("Rota não encontrada");
+// Middleware to deal with global errors
+app.use((err, req, res, next) => {
+  console.error("Erro global:", err);
+  res.status(500).json({ error: "Erro interno" });
 });
 
+// Routes
 app.get("/", (req, res) => {
   res.send("Seja bem-vindo à API do Chatbot!");
+});
+
+app.get("/api/openai", (req, res) => {
+  res.status(404).send("Rota não encontrada");
 });
 
 app.get("/get-chatbots", async (req, res) => {
@@ -153,6 +164,26 @@ app.get("/get-chatbots", async (req, res) => {
   } catch (error) {
     console.error("Erro ao buscar chatbots no MongoDB:", error);
     res.status(500).json({ error: "Erro interno ao buscar chatbots" });
+  }
+});
+
+app.get("/api/get-segments", async (req, res) => {
+  try {
+    const chatbots = await ChatbotModel.find();
+
+    if (chatbots.length === 0) {
+      return res.status(404).json({ error: "Nenhum segmento encontrado" });
+    }
+
+    const responses = chatbots.map((chatbot) => chatbot.openaiResponse);
+
+    const prettyJSON = JSON.stringify({ segments: responses }, null, 2);
+
+    res.header("Content-Type", "application/json");
+    res.status(200).send(prettyJSON);
+  } catch (error) {
+    console.error("Erro ao buscar segmentos no MongoDB:", error);
+    res.status(500).json({ error: "Erro interno ao buscar segmentos" });
   }
 });
 
