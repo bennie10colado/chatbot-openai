@@ -14,11 +14,12 @@ const chatbotSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    segments: [
-      {
-        type: String,
-      },
-    ],
+    fileContent: {
+      type: String,
+    },
+    openaiResponse: {
+      type: String,
+    },
   },
   { collection: "chatbot-collection" }
 );

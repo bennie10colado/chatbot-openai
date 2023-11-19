@@ -1,45 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import io from "socket.io-client";
-import { useEffect } from "react";
 import "../styles/ChatScreen.css";
+import axios from "axios";
 
 function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const socket = io("http://localhost:5000");
+  const [selectedChatbot, setSelectedChatbot] = useState("");
+  const socket = io("http://localhost:5000/ws");
 
-  const sendMessage = (e) => {
+  const sendMessage = async (e) => {
     e.preventDefault();
     if (input.trim() !== "") {
-      const newMessage = {
-        id: messages.length,
-        text: input,
-        sender: "user",
-      };
-      setMessages([...messages, newMessage]);
+      socket.emit("message", {
+        content: input,
+        role: "user",
+        chatbotName: selectedChatbot,
+      });
+
+      const newMessage = { id: messages.length, text: input, sender: "user" };
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+
       setInput("");
-      socket.emit("message", { content: input, role: "user" });
+
+      try {
+        const response = await axios.post(
+          "http://localhost:5000/api/send-message",
+          {
+            message: input,
+          }
+        );
+
+        const botResponse = {
+          id: messages.length + 1,
+          text: response.data.openaiResponse,
+          sender: "bot",
+        };
+        setMessages((prevMessages) => [...prevMessages, botResponse]);
+      } catch (error) {
+        console.error("Erro ao enviar mensagem para a API da OpenAI:", error);
+      }
     }
   };
 
   useEffect(() => {
-    socket.on("message", (message) => {
-      console.log("Mensagem recebida:", message);
-      setMessages([...messages, message]); 
-    });
-
     return () => {
       socket.disconnect();
     };
-  }, [messages, socket]);
+  }, [socket]);
 
   return (
     <div className="chat-screen-container">
       <div className="nav-back">
         <Link to="/" className="back-button">
           Voltar para a HomePage
-        </Link>{" "}
+        </Link>
       </div>
       <div className="message-area">
         {messages.map((message) => (

@@ -1,19 +1,22 @@
 const express = require("express");
+const WebSocket = require("ws");
+const socketIO = require("socket.io");
+const http = require("http");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const axios = require("axios");
 const cors = require("cors");
 const multer = require("multer");
-const expressWS = require("express-ws");
-const WebSocket = require("ws");
 require("dotenv").config();
+const Chatbot = require("./models/Chatbot");
 
 const URI = process.env.MONGODB_URI;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const PORT = process.env.PORT || 5000;
 
 const app = express();
-expressWS(app);
+const server = http.createServer(app);
+const io = socketIO(server);
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -24,31 +27,19 @@ mongoose.connect(URI, {
   useUnifiedTopology: true,
 });
 
-// MongoDB Schema and Model
-const chatbotSchema = new mongoose.Schema(
-  {
-    name: String,
-    version: String,
-    instructions: String,
-    openaiResponse: String,
-    fileContent: String,
-  },
-  { collection: "chatbot-collection" }
-);
-const ChatbotModel = mongoose.model("Chatbot", chatbotSchema);
-
 // Multer Configuration
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // WebSocket Configuration
-app.ws("/ws", (ws, req) => {
-  console.log("Nova conexão WebSocket");
+io.on("connection", (socket) => {
+  console.log("Novo usuário conectado via WebSocket");
 
-  ws.on("message", (message) => {
+  socket.on("message", async (message) => {
     console.log("Mensagem recebida:", message);
 
-    ws.send("Resposta do WebSocket!!!!");
+    const openaiResponse = await processOpenAICall(message.content, "");
+    socket.emit("message", { content: openaiResponse, role: "bot" });
   });
 });
 
@@ -79,7 +70,7 @@ const processOpenAICall = async (fileContent, instructions) => {
   }
 };
 
-//API
+// API
 app.post("/api/openai", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -105,7 +96,7 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
 
     const { name, version } = req.body;
 
-    const chatbotData = new ChatbotModel({
+    const chatbotData = new Chatbot({
       name,
       version,
       instructions: req.body.instructions,
@@ -123,6 +114,43 @@ app.post("/api/openai", upload.single("file"), async (req, res) => {
       console.error("Erro ao salvar no MongoDB:", error);
       res.status(500).json({ error: "Erro interno ao salvar no MongoDB" });
     }
+  } catch (error) {
+    console.error("Erro inesperado:", error.message);
+    res.status(500).json({ error: "Erro inesperado" });
+  }
+});
+
+// deal with messages from user
+app.post("/api/send-message", async (req, res) => {
+  try {
+    const { message, chatbotName } = req.body;
+
+    if (!message || !chatbotName) {
+      return res.status(400).json({
+        error: "Mensagem do usuário ou nome do chatbot não fornecido",
+      });
+    }
+
+    const chatbot = await ChatbotModel.findOne({ name: chatbotName });
+
+    if (!chatbot) {
+      return res.status(404).json({ error: "Chatbot não encontrado" });
+    }
+
+    const openaiResponse = await processOpenAICall(
+      message,
+      chatbot.instructions
+    );
+
+    if (!openaiResponse) {
+      return res
+        .status(500)
+        .json({ error: "Resposta da OpenAI não encontrada" });
+    }
+
+    io.emit("message", { content: openaiResponse, role: "bot" });
+
+    res.json({ openaiResponse });
   } catch (error) {
     console.error("Erro inesperado:", error.message);
     res.status(500).json({ error: "Erro inesperado" });
@@ -159,7 +187,7 @@ app.get("/api/openai", (req, res) => {
 
 app.get("/get-chatbots", async (req, res) => {
   try {
-    const chatbots = await ChatbotModel.find();
+    const chatbots = await Chatbot.find();
     res.json({ chatbots });
   } catch (error) {
     console.error("Erro ao buscar chatbots no MongoDB:", error);
@@ -169,7 +197,7 @@ app.get("/get-chatbots", async (req, res) => {
 
 app.get("/api/get-segments", async (req, res) => {
   try {
-    const chatbots = await ChatbotModel.find();
+    const chatbots = await Chatbot.find();
 
     if (chatbots.length === 0) {
       return res.status(404).json({ error: "Nenhum segmento encontrado" });
@@ -189,4 +217,21 @@ app.get("/api/get-segments", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Servidor backend rodando na porta ${PORT}`);
+});
+
+app.get("/api/chatbots/:name", async (req, res) => {
+  const { name } = req.params;
+
+  try {
+    const chatbot = await Chatbot.findOne({ name });
+
+    if (!chatbot) {
+      return res.status(404).json({ error: "Chatbot não encontrado" });
+    }
+
+    res.json({ chatbot });
+  } catch (error) {
+    console.error("Erro ao buscar chatbot no MongoDB:", error);
+    res.status(500).json({ error: "Erro interno ao buscar chatbot" });
+  }
 });
