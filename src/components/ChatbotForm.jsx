@@ -6,7 +6,7 @@ import "../styles/ChatbotForm.css";
 
 function ChatbotForm() {
   const [botName, setBotName] = useState("");
-  const [botVersion, setBotVersion] = useState("GPT-3.5-turbo");
+  const [botVersion, setBotVersion] = useState("gpt-3.5-turbo");
   const [instructions, setInstructions] = useState("");
   const [file, setFile] = useState(null);
   const [errors, setErrors] = useState({
@@ -62,7 +62,7 @@ function ChatbotForm() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/openai",
+        "http://localhost:5000/openai/openai",
         formData,
         {
           headers: {
@@ -117,7 +117,7 @@ function ChatbotForm() {
           value={botVersion}
           onChange={(e) => setBotVersion(e.target.value)}
         >
-          <option value="GPT-3.5-turbo">GPT-3.5-turbo</option>
+          <option value="gpt-3.5-turbo">GPT-3.5-turbo</option>
         </select>
 
         <label htmlFor="instructions">Prompt:</label>
