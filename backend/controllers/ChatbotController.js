@@ -63,7 +63,7 @@ const sendMessage = async (req, res) => {
   try {
     const { message, chatbotName } = req.body;
 
-    if (!message || !chatbotName) {
+    if (!message) {
       return res.status(400).json({
         error: "Mensagem do usuário ou nome do chatbot não fornecido",
       });
@@ -86,7 +86,6 @@ const sendMessage = async (req, res) => {
         .json({ error: "Resposta da OpenAI não encontrada" });
     }
 
-    //dealing with answers messages
     io.emit("message", { content: openaiResponse, role: "bot" });
 
     res.json({ openaiResponse });
@@ -123,9 +122,27 @@ const getSegments = async (req, res) => {
   }
 };
 
+async function getBotInformation(botName) {
+  try {
+    const bot = await Chatbot.findOne({ name: botName });
+    if (!bot) {
+      throw new Error(`Bot com o nome ${botName} não encontrado.`);
+    }
+
+    const instructions = bot.instructions;
+    const fileContent = bot.fileContent;
+
+    return { instructions, fileContent };
+  } catch (error) {
+    console.error("Erro ao obter informações do bot:", error);
+    throw error;
+  }
+}
+
 module.exports = {
   createChatbot,
   sendMessage,
   getChatbots,
   getSegments,
+  getBotInformation,
 };

@@ -1,14 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import io from "socket.io-client";
-import "../styles/ChatScreen.css";
 import axios from "axios";
+import "../styles/ChatScreen.css";
 
 function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [selectedChatbot, setSelectedChatbot] = useState("");
   const socket = io("http://localhost:5000/ws");
+
+  useEffect(() => {
+    socket.on("message", (message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+      scrollToBottom();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [socket]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -19,17 +30,15 @@ function ChatScreen() {
         chatbotName: selectedChatbot,
       });
 
-      const newMessage = { id: messages.length, text: input, sender: "user" };
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      const userMessage = { id: messages.length, text: input, sender: "user" };
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
 
       setInput("");
 
       try {
         const response = await axios.post(
-          "http://localhost:5000/api/send-message",
-          {
-            message: input,
-          }
+          "http://localhost:5000/openai/send-message",
+          { message: input }
         );
 
         const botResponse = {
@@ -38,17 +47,19 @@ function ChatScreen() {
           sender: "bot",
         };
         setMessages((prevMessages) => [...prevMessages, botResponse]);
+        scrollToBottom();
       } catch (error) {
         console.error("Erro ao enviar mensagem para a API da OpenAI:", error);
       }
     }
   };
 
-  useEffect(() => {
-    return () => {
-      socket.disconnect();
-    };
-  }, [socket]);
+  const scrollToBottom = () => {
+    const messageArea = document.getElementById("message-area");
+    if (messageArea) {
+      messageArea.scrollTop = messageArea.scrollHeight;
+    }
+  };
 
   return (
     <div className="chat-screen-container">
@@ -57,7 +68,7 @@ function ChatScreen() {
           Voltar para a HomePage
         </Link>
       </div>
-      <div className="message-area">
+      <div id="message-area" className="message-area">
         {messages.map((message) => (
           <p key={message.id} className={`message ${message.sender}`}>
             {message.text}
@@ -70,6 +81,7 @@ function ChatScreen() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           className="message-input"
+          id="user-input"
         />
         <button type="submit" className="send-button">
           Enviar
