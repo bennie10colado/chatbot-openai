@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import io from "socket.io-client";
 import axios from "axios";
 import "../styles/ChatScreen.css";
 
@@ -9,7 +8,6 @@ function ChatScreen() {
   const [input, setInput] = useState("");
   const [selectedChatbot, setSelectedChatbot] = useState("");
   const [availableBots, setAvailableBots] = useState([]);
-  const socket = io("http://localhost:5000/ws");
 
   useEffect(() => {
     const fetchAvailableBots = async () => {
@@ -24,26 +22,11 @@ function ChatScreen() {
     };
 
     fetchAvailableBots();
-
-    socket.on("message", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-      scrollToBottom();
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [socket]);
+  }, []);
 
   const sendMessage = async (e) => {
     e.preventDefault();
     if (input.trim() !== "") {
-      socket.emit("message", {
-        content: input,
-        role: "user",
-        chatbotName: selectedChatbot,
-      });
-
       const userMessage = { id: messages.length, text: input, sender: "user" };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 

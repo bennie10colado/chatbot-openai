@@ -86,12 +86,6 @@ const sendMessage = async (req, res) => {
         .json({ error: "Resposta da OpenAI não encontrada" });
     }
 
-    io.emit("message", {
-      content: openaiResponse,
-      role: "bot",
-      chatbotName: chatbotName, 
-    });
-
     res.json({ openaiResponse });
   } catch (error) {
     console.error("Erro inesperado:", error);
