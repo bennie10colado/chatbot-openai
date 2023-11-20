@@ -63,7 +63,7 @@ const sendMessage = async (req, res) => {
   try {
     const { message, chatbotName } = req.body;
 
-    if (!message) {
+    if (!message || !chatbotName) {
       return res.status(400).json({
         error: "Mensagem do usuário ou nome do chatbot não fornecido",
       });
@@ -86,11 +86,15 @@ const sendMessage = async (req, res) => {
         .json({ error: "Resposta da OpenAI não encontrada" });
     }
 
-    io.emit("message", { content: openaiResponse, role: "bot" });
+    io.emit("message", {
+      content: openaiResponse,
+      role: "bot",
+      chatbotName: chatbotName, 
+    });
 
     res.json({ openaiResponse });
   } catch (error) {
-    console.error("Erro inesperado:", error.message);
+    console.error("Erro inesperado:", error);
     res.status(500).json({ error: "Erro inesperado" });
   }
 };
@@ -139,10 +143,21 @@ async function getBotInformation(botName) {
   }
 }
 
+const getAvailableBots = async (req, res) => {
+  try {
+    const availableBots = await Chatbot.find({}, 'name version');
+    res.json(availableBots);
+  } catch (error) {
+    console.error('Erro ao obter a lista de bots disponíveis:', error);
+    res.status(500).json({ error: 'Erro ao obter a lista de bots disponíveis' });
+  }
+};
+
 module.exports = {
   createChatbot,
   sendMessage,
   getChatbots,
   getSegments,
   getBotInformation,
+  getAvailableBots,
 };

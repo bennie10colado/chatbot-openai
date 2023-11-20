@@ -8,9 +8,23 @@ function ChatScreen() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [selectedChatbot, setSelectedChatbot] = useState("");
+  const [availableBots, setAvailableBots] = useState([]);
   const socket = io("http://localhost:5000/ws");
 
   useEffect(() => {
+    const fetchAvailableBots = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/get-available-bots"
+        );
+        setAvailableBots(response.data);
+      } catch (error) {
+        console.error("Erro ao obter a lista de bots disponíveis:", error);
+      }
+    };
+
+    fetchAvailableBots();
+
     socket.on("message", (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
       scrollToBottom();
@@ -38,7 +52,7 @@ function ChatScreen() {
       try {
         const response = await axios.post(
           "http://localhost:5000/openai/send-message",
-          { message: input }
+          { message: input, chatbotName: selectedChatbot }
         );
 
         const botResponse = {
@@ -67,6 +81,22 @@ function ChatScreen() {
         <Link to="/" className="back-button">
           Voltar para a HomePage
         </Link>
+      </div>
+      <div>
+        <h2>Escolha um chatbot:</h2>
+        <select
+          value={selectedChatbot}
+          onChange={(e) => setSelectedChatbot(e.target.value)}
+        >
+          <option value="" disabled>
+            Selecione um chatbot
+          </option>
+          {availableBots.map((bot) => (
+            <option key={bot._id} value={bot.name}>
+              {bot.name} - {bot.version}
+            </option>
+          ))}
+        </select>
       </div>
       <div id="message-area" className="message-area">
         {messages.map((message) => (
