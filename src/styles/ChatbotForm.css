@@ -72,14 +72,20 @@
 }
 
 .error-message {
-  background-color: #ff4d4f; 
-  color: #ffffff; 
+  background-color: #ff4d4f;
+  color: #ffffff;
   padding: 10px;
   border-radius: 4px;
   margin-top: 8px;
-  display: none; 
+  display: none;
 }
 
 .show-message {
   display: block;
+}
+
+.chatbot-form button:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
 }

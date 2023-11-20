@@ -159,7 +159,7 @@ function ChatbotForm() {
         )}
 
         <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Criando Chatbot..." : "Criar Chatbot"}
+          {isSubmitting ? "Criando Chatbot... Aguarde!" : "Criar Chatbot"}
         </button>
       </form>
     </div>
