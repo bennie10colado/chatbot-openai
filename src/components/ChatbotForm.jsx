@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-
 import "../styles/ChatbotForm.css";
 
 function ChatbotForm() {
@@ -14,9 +13,14 @@ function ChatbotForm() {
     instructions: "",
     file: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isSubmitting) {
+      return;
+    }
 
     setErrors({
       botName: "",
@@ -54,6 +58,8 @@ function ChatbotForm() {
       return;
     }
 
+    setIsSubmitting(true);
+
     const payload = {
       name: botName,
       version: botVersion,
@@ -77,8 +83,6 @@ function ChatbotForm() {
         }
       );
 
-      console.log("Resposta da API da OpenAI", response.data, response.config);
-
       if (response.status === 200) {
         console.log("Chatbot criado com sucesso!");
         setErrors({
@@ -91,6 +95,8 @@ function ChatbotForm() {
       }
     } catch (error) {
       console.error("Erro ao enviar a solicitação para o backend", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -152,7 +158,9 @@ function ChatbotForm() {
           <div className="error-message show-message">{errors.file}</div>
         )}
 
-        <button type="submit">Criar Chatbot</button>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Criando Chatbot..." : "Criar Chatbot"}
+        </button>
       </form>
     </div>
   );
