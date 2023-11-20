@@ -1,13 +1,24 @@
+const multer = require("multer");
 const Chatbot = require("../models/Chatbot");
 const { processOpenAICall } = require("./OpenAiController");
 
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 const createChatbot = async (req, res) => {
   try {
+    console.log("FormData from frontend:", req.body);
+    console.log("File from frontend:", req.file);
     if (!req.file) {
       return res.status(400).json({ error: "Nenhum arquivo enviado" });
     }
 
-    const fileContent = req.file.buffer.toString();
+    const fileBuffer = req.file.buffer;
+    if (!fileBuffer) {
+      return res.status(400).json({ error: "Erro ao ler o arquivo txt" });
+    }
+
+    const fileContent = fileBuffer.toString("utf-8");
 
     if (!req.body.instructions) {
       return res.status(400).json({ error: "Instruções não fornecidas" });
@@ -34,19 +45,17 @@ const createChatbot = async (req, res) => {
       fileContent,
     });
 
-    res.send("Welcome to the OpenAI server!");
-
     try {
       const result = await chatbotData.save();
       console.log("Depois de inserir no MongoDB:", result);
-      res.json({ openaiResponse });
+      res.json({ message: "Welcome to the OpenAI server!", openaiResponse });
     } catch (error) {
       console.error("Erro ao salvar no MongoDB:", error);
       res.status(500).json({ error: "Erro interno ao salvar no MongoDB" });
     }
   } catch (error) {
-    console.error("Erro inesperado:", error.message);
-    res.status(500).json({ error: "Erro inesperado" });
+    console.error("Erro inesperado ao criar chatbot:", error.message);
+    res.status(500).json({ error: "Erro inesperado ao criar chatbot" });
   }
 };
 

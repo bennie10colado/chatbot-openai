@@ -17,7 +17,6 @@ const processOpenAICall = async (fileContent, instructions) => {
       },
       {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${OPENAI_API_KEY}`,
         },
       }

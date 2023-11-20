@@ -54,11 +54,17 @@ function ChatbotForm() {
       return;
     }
 
+    const payload = {
+      name: botName,
+      version: botVersion,
+      instructions: instructions,
+      file: file,
+    };
+
     const formData = new FormData();
-    formData.append("name", botName);
-    formData.append("version", botVersion);
-    formData.append("instructions", instructions);
-    formData.append("file", file);
+    for (const key in payload) {
+      formData.append(key, payload[key]);
+    }
 
     try {
       const response = await axios.post(
@@ -138,7 +144,9 @@ function ChatbotForm() {
           type="file"
           id="file"
           accept=".txt"
-          onChange={(e) => setFile(e.target.files[0])}
+          onChange={(e) => {
+            setFile(e.target.files[0]);
+          }}
         />
         {errors.file && (
           <div className="error-message show-message">{errors.file}</div>
