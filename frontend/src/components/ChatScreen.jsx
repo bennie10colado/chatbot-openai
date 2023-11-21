@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import openaiService from "../api/OpenAiService";
 import "../styles/main.css";
 
 function ChatScreen() {
@@ -14,10 +15,8 @@ function ChatScreen() {
   useEffect(() => {
     const fetchAvailableBots = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/get-available-bots"
-        );
-        setAvailableBots(response.data);
+        const bots = await openaiService.getAvailableBots();
+        setAvailableBots(bots);
       } catch (error) {
         console.error("Erro ao obter a lista de bots disponíveis:", error);
       }
@@ -49,18 +48,16 @@ function ChatScreen() {
       setInput("");
 
       try {
-        const response = await axios.post(
-          "http://localhost:5000/openai/send-message",
-          { message: input, chatbotName: selectedChatbot },
-          { cancelToken: cancelToken.current.token }
+        const botResponse = await openaiService.sendMessage(
+          input,
+          selectedChatbot
         );
 
-        const botResponse = {
-          id: messages.length + 1,
-          text: response.data.openaiResponse,
-          sender: "bot",
-        };
-        setMessages((prevMessages) => [...prevMessages, botResponse]);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { id: messages.length + 1, text: botResponse, sender: "bot" },
+        ]);
+
         scrollToBottom();
       } catch (error) {
         if (axios.isCancel(error)) {
