@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "../styles/main.css";
@@ -8,6 +8,8 @@ function ChatScreen() {
   const [input, setInput] = useState("");
   const [selectedChatbot, setSelectedChatbot] = useState("");
   const [availableBots, setAvailableBots] = useState([]);
+  const [botSelected, setBotSelected] = useState(true);
+  const cancelToken = useRef(null);
 
   useEffect(() => {
     const fetchAvailableBots = async () => {
@@ -26,10 +28,20 @@ function ChatScreen() {
 
   useEffect(() => {
     setMessages([]);
+    cancelToken.current && cancelToken.current.cancel();
+    cancelToken.current = axios.CancelToken.source();
+    setBotSelected(true);
   }, [selectedChatbot]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
+
+    if (!selectedChatbot) {
+      console.error("Selecione um bot antes de enviar uma mensagem.");
+      setBotSelected(false);
+      return;
+    }
+
     if (input.trim() !== "") {
       const userMessage = { id: messages.length, text: input, sender: "user" };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
@@ -39,7 +51,8 @@ function ChatScreen() {
       try {
         const response = await axios.post(
           "http://localhost:5000/openai/send-message",
-          { message: input, chatbotName: selectedChatbot }
+          { message: input, chatbotName: selectedChatbot },
+          { cancelToken: cancelToken.current.token }
         );
 
         const botResponse = {
@@ -50,7 +63,11 @@ function ChatScreen() {
         setMessages((prevMessages) => [...prevMessages, botResponse]);
         scrollToBottom();
       } catch (error) {
-        console.error("Erro ao enviar mensagem para a API da OpenAI:", error);
+        if (axios.isCancel(error)) {
+          console.log("Requisição cancelada devido a mudança de bot ativo");
+        } else {
+          console.error("Erro ao enviar mensagem para a API da OpenAI:", error);
+        }
       }
     }
   };
@@ -73,7 +90,10 @@ function ChatScreen() {
         <h2>Escolha um chatbot:</h2>
         <select
           value={selectedChatbot}
-          onChange={(e) => setSelectedChatbot(e.target.value)}
+          onChange={(e) => {
+            setSelectedChatbot(e.target.value);
+            setBotSelected(true);
+          }}
         >
           <option value="" disabled>
             Selecione um chatbot
@@ -84,6 +104,11 @@ function ChatScreen() {
             </option>
           ))}
         </select>
+        {!botSelected && (
+          <p style={{ color: "red" }}>
+            Selecione um bot antes de enviar uma mensagem.
+          </p>
+        )}
       </div>
       <div id="message-area" className="message-area">
         {messages.map((message) => (

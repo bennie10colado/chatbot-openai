@@ -3,12 +3,12 @@ const Chatbot = require("../models/Chatbot");
 const { processOpenAICall } = require("./OpenAiController");
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage }); //passivel de remocao
 
 const createChatbot = async (req, res) => {
   try {
-    console.log("FormData from frontend:", req.body);
-    console.log("File from frontend:", req.file);
+    //console.log("FormData from frontend:", req.body);
+    //console.log("File from frontend:", req.file);
     if (!req.file) {
       return res.status(400).json({ error: "Nenhum arquivo enviado" });
     }
