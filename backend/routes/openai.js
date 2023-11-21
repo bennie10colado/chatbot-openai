@@ -3,7 +3,7 @@ const multer = require("multer");
 const {
   sendMessage,
   createChatbot,
-} = require("../controllers/ChatbotController.js");
+} = require("../controllers/chatbotController.js");
 
 const router = express.Router();
 

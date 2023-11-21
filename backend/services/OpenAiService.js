@@ -3,6 +3,10 @@ require("dotenv").config();
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
+if (!OPENAI_API_KEY) {
+  throw new Error("A chave da API do OpenAI não está configurada.");
+}
+
 const processOpenAICall = async (fileContent, instructions) => {
   try {
     const response = await axios.post(

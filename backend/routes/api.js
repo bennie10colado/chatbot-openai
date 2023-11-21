@@ -4,8 +4,7 @@ const {
   getSegments,
   getChatbots,
   getAvailableBots,
-  getBotInformation,
-} = require("../controllers/ChatbotController");
+} = require("../controllers/chatbotController");
 
 router.get("/", (req, res) => {
   res.send("Welcome to the backend server!");
@@ -14,6 +13,5 @@ router.get("/", (req, res) => {
 router.get("/get-segments", getSegments);
 router.get("/get-chatbots", getChatbots);
 router.get("/get-available-bots", getAvailableBots);
-router.get("/get-information-bots", getBotInformation);
 
 module.exports = router;
