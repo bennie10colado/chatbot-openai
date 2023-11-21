@@ -3,6 +3,7 @@ const cors = require('cors');
 const openaiRoutes = require('./routes/openai');
 const apiRoutes = require('./routes/api');
 const { connectToDatabase } = require('./config/database'); 
+const middlewares = require('./middlewares/middlewares'); 
 
 require('dotenv').config();
 
@@ -23,6 +24,8 @@ connectToDatabase();
 
 app.use('/', apiRoutes);
 app.use('/openai', openaiRoutes);
+
+app.use(middlewares.errorHandlerMiddleware);
 
 const server = app.listen(PORT, () => {
   console.log(`Servidor backend rodando na porta ${PORT}`);
