@@ -1,6 +1,6 @@
 const multer = require("multer");
 const Chatbot = require("../models/Chatbot");
-const { processOpenAICall } = require("./OpenAiController");
+const { processOpenAICall } = require("../services/OpenAiService");
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }); //passivel de remocao

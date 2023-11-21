@@ -1,18 +1,17 @@
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const openaiRoutes = require("./routes/openai");
-const apiRoutes = require("./routes/api");
-require("dotenv").config();
+const express = require('express');
+const cors = require('cors');
+const openaiRoutes = require('./routes/openai');
+const apiRoutes = require('./routes/api');
+const { connectToDatabase } = require('./config/database'); 
 
-const URI = process.env.MONGODB_URI;
+require('dotenv').config();
+
 const PORT = process.env.PORT || 5000;
-
 const app = express();
 
 const corsOptions = {
-  origin: "http://localhost:3000" || "http://localhost:5000",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  origin: 'http://localhost:3000' || 'http://localhost:5000',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,
 };
@@ -20,20 +19,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-app.use("/", apiRoutes);
-app.use("/openai", openaiRoutes);
+connectToDatabase();
 
-mongoose
-  .connect(URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("MongoDB Connection Successful");
-  })
-  .catch((err) => {
-    console.log(err.message);
-  });
+app.use('/', apiRoutes);
+app.use('/openai', openaiRoutes);
 
 const server = app.listen(PORT, () => {
   console.log(`Servidor backend rodando na porta ${PORT}`);
