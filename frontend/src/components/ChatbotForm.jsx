@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import openaiService from "../api/OpenAiService";
 import "../styles/main.css";
 
 function ChatbotForm() {
@@ -14,21 +14,24 @@ function ChatbotForm() {
     file: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (isSubmitting) {
-      return;
-    }
-
+  const clearErrors = () => {
     setErrors({
       botName: "",
       instructions: "",
       file: "",
     });
+  };
 
-    let hasError = false; //particionar erros em funcao a parte? pode ser
+  const clearMessages = () => {
+    setSuccessMessage("");
+  };
+
+  const validateForm = () => {
+    clearErrors();
+
+    let hasError = false;
 
     if (!botName) {
       setErrors((prevErrors) => ({
@@ -54,48 +57,41 @@ function ChatbotForm() {
       hasError = true;
     }
 
-    if (hasError) {
+    return !hasError;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isSubmitting) {
+      return;
+    }
+
+    clearMessages();
+
+    if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
 
-    const payload = {
-      name: botName,
-      version: botVersion,
-      instructions: instructions,
-      file: file,
-    };
-
-    const formData = new FormData();
-    for (const key in payload) {
-      formData.append(key, payload[key]);
-    }
-
     try {
-      //separar requisicoes da api do front para o back em pasta a parte posteriormente
-      const response = await axios.post(
-        "http://localhost:5000/openai/openai",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await openaiService.createChatbot({
+        name: botName,
+        version: botVersion,
+        instructions: instructions,
+        file: file,
+      });
 
-      if (response.status === 200) {
-        console.log("Chatbot criado com sucesso!");
-        setErrors({
-          botName: "",
-          instructions: "",
-          file: "",
-        });
-      } else {
-        console.error("Erro ao criar o chatbot");
-      }
+      console.log("Chatbot criado com sucesso!", response);
+
+      setSuccessMessage("Chatbot criado com sucesso!");
+
+      // pode-se atualizar o estado ou redirecionar o usuario para outra página
     } catch (error) {
-      console.error("Erro ao enviar a solicitação para o backend", error);
+      console.error("Erro ao criar o chatbot", error);
+
+      // feedback de erro ao usuário?
     } finally {
       setIsSubmitting(false);
     }
@@ -109,6 +105,9 @@ function ChatbotForm() {
         </Link>
       </div>
       <form onSubmit={handleSubmit} className="chatbot-form">
+        {successMessage && (
+          <div className="success-message show-message">{successMessage}</div>
+        )}
         {errors.allFields && (
           <div className="error-message show-message">{errors.allFields}</div>
         )}
