@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const openaiRoutes = require('./routes/openai');
-const apiRoutes = require('./routes/api');
+const routes = require('./routes/routes');
 const { connectToDatabase } = require('./config/database'); 
 const middlewares = require('./middlewares/middlewares'); 
 
@@ -22,7 +22,7 @@ app.use(express.json());
 
 connectToDatabase();
 
-app.use('/', apiRoutes);
+app.use('/', routes);
 app.use('/openai', openaiRoutes);
 
 app.use(middlewares.errorHandlerMiddleware);
