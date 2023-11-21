@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import "../styles/ChatScreen.css";
+import "../styles/main.css";
 
 function ChatScreen() {
   const [messages, setMessages] = useState([]);
@@ -23,6 +23,10 @@ function ChatScreen() {
 
     fetchAvailableBots();
   }, []);
+
+  useEffect(() => {
+    setMessages([]);
+  }, [selectedChatbot]);
 
   const sendMessage = async (e) => {
     e.preventDefault();

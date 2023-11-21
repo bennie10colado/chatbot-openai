@@ -1,0 +1,16 @@
+/* arquivo de configuraçâo geral */
+
+:root{
+    --primary: #546FBF;
+    --secondary: #BDD4F2;
+    --background: #FFFFFF;
+    --text: black;
+    --second_text: #A0A0A0;
+}
+
+html, body{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background);
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
+}
