@@ -28,7 +28,7 @@ function ChatbotForm() {
       file: "",
     });
 
-    let hasError = false;
+    let hasError = false; //particionar erros em funcao a parte? pode ser
 
     if (!botName) {
       setErrors((prevErrors) => ({
@@ -72,8 +72,8 @@ function ChatbotForm() {
       formData.append(key, payload[key]);
     }
 
-    try {
-      const response = await axios.post(
+    try { //separar requisicoes da api do front para o back em pasta a parte posteriormente
+      const response = await axios.post( 
         "http://localhost:5000/openai/openai",
         formData,
         {
