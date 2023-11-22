@@ -18,7 +18,7 @@ const processOpenAICall = async (fileContent, instructions) => {
           { role: "user", content: instructions },
         ],
         temperature: 0.7,
-        max_tokens: 250,  
+        //max_tokens: 250,  
       },
       {
         headers: {

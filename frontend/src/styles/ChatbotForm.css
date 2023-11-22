@@ -1,0 +1,70 @@
+.chatbot-form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.back-button {
+  display: block;
+  margin-bottom: 20px;
+  text-decoration: none;
+  color: var(--primary);
+}
+
+.chatbot-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+.error-message,
+.success-message {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.error-message {
+  background-color: #ffdddd;
+  color: #ff0000;
+}
+
+.success-message {
+  background-color: #ddffdd;
+  color: #00aa00;
+}
+
+.show-message {
+  display: block;
+}
+
+button {
+  background-color: var(--primary);
+  color: #fff;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
