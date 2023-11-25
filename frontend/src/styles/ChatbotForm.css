@@ -1,7 +1,12 @@
-.chatbot-form-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
+label {
+  margin-top: 0.75rem;
+}
+
+.text-area {
+  overflow-y: auto;
+  resize: none;
+  width: 100%;
+  height: 5rem;
 }
 
 .back-button {
@@ -9,6 +14,18 @@
   margin-bottom: 20px;
   text-decoration: none;
   color: var(--primary);
+}
+
+.row {
+  margin-top: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.box-text {
+  border-radius: 0.25rem;
+  border: 0.05rem solid var(--second_text);
 }
 
 .chatbot-form {
@@ -32,6 +49,51 @@ textarea {
   padding: 8px;
   margin-top: 5px;
   box-sizing: border-box;
+}
+
+.file-upload-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: dashed rgba(78, 77, 77, 0.53) 2px;
+  cursor: pointer;
+  padding: 8px 16px;
+  width: 100%;
+}
+
+.file-input {
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0.1px;
+  height: 0.1px;
+  z-index: -1;
+}
+
+.file-label {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 8px 16px;
+  border: none;
+}
+
+.file-name-display {
+  width: 100%;
+  display: inline;
+  text-align: center;
+  padding: 8px 0;
+  vertical-align: middle;
+}
+
+.file-icon {
+  margin-right: 10px; 
+}
+
+.button-submit {
+  margin-top: 1rem;
+  border-radius: 0.25rem;
 }
 
 .error-message,

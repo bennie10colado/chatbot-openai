@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+//import { Link } from "react-router-dom";
 import axios from "axios";
 import openaiService from "../api/OpenAiService";
 import "../styles/main.css";
+import { BeatLoader } from "react-spinners";
 
 function ChatScreen() {
   const [messages, setMessages] = useState([]);
@@ -11,6 +12,11 @@ function ChatScreen() {
   const [availableBots, setAvailableBots] = useState([]);
   const [botSelected, setBotSelected] = useState(true);
   const cancelToken = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const getSelectedBotDetails = () => {
+    return availableBots.find((bot) => bot.name === selectedChatbot);
+  };
 
   useEffect(() => {
     const fetchAvailableBots = async () => {
@@ -42,6 +48,7 @@ function ChatScreen() {
     }
 
     if (input.trim() !== "") {
+      setIsLoading(true);
       const userMessage = { id: messages.length, text: input, sender: "user" };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
@@ -66,6 +73,7 @@ function ChatScreen() {
           console.error("Erro ao enviar mensagem para a API da OpenAI:", error);
         }
       }
+      setIsLoading(false);
     }
   };
 
@@ -77,15 +85,11 @@ function ChatScreen() {
   };
 
   return (
-    <div className="chat-screen-container">
-      <div className="nav-back">
-        <Link to="/" className="back-button">
-          Voltar para a HomePage
-        </Link>
-      </div>
+    <div>
       <div>
         <h2>Escolha um chatbot:</h2>
         <select
+          className="select-space"
           value={selectedChatbot}
           onChange={(e) => {
             setSelectedChatbot(e.target.value);
@@ -107,25 +111,61 @@ function ChatScreen() {
           </p>
         )}
       </div>
-      <div id="message-area" className="message-area">
-        {messages.map((message) => (
-          <p key={message.id} className={`message ${message.sender}`}>
-            {message.text}
-          </p>
-        ))}
+
+      <div className="chat-screen-container">
+        <div className="header-chat">
+          {selectedChatbot && getSelectedBotDetails() ? (
+            <React.Fragment>
+              <strong>{getSelectedBotDetails().name}</strong>
+            </React.Fragment>
+          ) : (
+            "Nenhum bot selecionado"
+          )}
+        </div>
+
+        <div id="message-area" className="message-area">
+          {messages.map((message) => (
+            <div key={message.id}>
+              
+              <div className={`message-container ${message.sender}-container`}>
+                <div className={`sender-identifier`}>
+                  <span>{message.sender === "user" ? "Você" : "Bot"}</span>
+                </div>
+              </div>
+
+              <div className={`message-container ${message.sender}-container`}>
+                <div className={`sender-identifier`}>
+                  <span className={`message ${message.sender}`}>
+                    {message.text}
+                  </span>
+                </div>
+              </div>
+
+            </div>
+          ))}
+        </div>
+
+        {isLoading && (
+          <div className="spinner-class">
+            <div className="beat-loader">
+              <BeatLoader color="#007bff" />
+            </div>
+          </div>
+        )}
+
+        <form className="message-form" onSubmit={sendMessage}>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="message-input"
+            id="user-input"
+          />
+          <button type="submit" className="send-button">
+            Enviar
+          </button>
+        </form>
       </div>
-      <form className="message-form" onSubmit={sendMessage}>
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          className="message-input"
-          id="user-input"
-        />
-        <button type="submit" className="send-button">
-          Enviar
-        </button>
-      </form>
     </div>
   );
 }

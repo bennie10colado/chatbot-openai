@@ -18,7 +18,7 @@ const processOpenAICall = async (fileContent, instructions) => {
           { role: "user", content: instructions },
         ],
         temperature: 0.7,
-        //max_tokens: 250,  
+        max_tokens: 250,
       },
       {
         headers: {
@@ -34,4 +34,36 @@ const processOpenAICall = async (fileContent, instructions) => {
   }
 };
 
-module.exports = { processOpenAICall };
+const processOpenAICallConversation = async (
+  message,
+  fileContent,
+  instructions
+) => {
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "user", content: message },
+          { role: "user", content: fileContent },
+          { role: "user", content: instructions },
+        ],
+        temperature: 0.7,
+        //max_tokens: 250,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        },
+      }
+    );
+
+    return response.data.choices[0]?.message?.content;
+  } catch (error) {
+    console.error("Erro ao chamar a API do OpenAI:", error);
+    throw new Error("Erro interno ao chamar a API do OpenAI");
+  }
+};
+
+module.exports = { processOpenAICall, processOpenAICallConversation };

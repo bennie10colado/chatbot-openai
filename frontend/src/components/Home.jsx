@@ -7,10 +7,13 @@ import "../styles/main.css";
 function Home() {
   return (
     <div>
-      <h1 style={{ marginTop: 5 }}>Bem-vindo às configurações do chatbot</h1>
+
+      <h1 className="home-title">Bem-vindo às configurações do chatbot</h1>
+
       <div>
         <p>Aqui você pode criar e editar seu chatbot</p>{" "}
       </div>
+
     </div>
   );
 }

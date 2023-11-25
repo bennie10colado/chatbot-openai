@@ -1,5 +1,8 @@
 const Chatbot = require("../models/Chatbot");
-const { processOpenAICall } = require("./openAiService");
+const {
+  processOpenAICall,
+  processOpenAICallConversation,
+} = require("./openAiService");
 
 const createChatbot = async (name, version, file, instructions) => {
   //console.log("FormData from frontend:", req.body);
@@ -49,8 +52,11 @@ const sendMessage = async (chatbotName, message) => {
     throw new Error("Chatbot não encontrado");
   }
 
-  const openaiResponse = await processOpenAICall(message, chatbot.instructions);
-
+  const openaiResponse = await processOpenAICallConversation(
+    message,
+    chatbot.fileContent,
+    chatbot.instructions
+  );
   if (!openaiResponse) {
     throw new Error("Resposta da OpenAI não encontrada");
   }

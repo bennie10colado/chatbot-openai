@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+//import { Link } from "react-router-dom";
 import openaiService from "../api/OpenAiService";
 import "../styles/main.css";
 
@@ -99,11 +99,6 @@ function ChatbotForm() {
 
   return (
     <div className="chatbot-form-container">
-      <div className="nav-back">
-        <Link to="/" className="back-button">
-          Voltar para a HomePage
-        </Link>
-      </div>
       <form onSubmit={handleSubmit} className="chatbot-form">
         {successMessage && (
           <div className="success-message show-message">{successMessage}</div>
@@ -112,32 +107,42 @@ function ChatbotForm() {
           <div className="error-message show-message">{errors.allFields}</div>
         )}
 
-        <label htmlFor="botName">Nome do Chatbot:</label>
-        <input
-          type="text"
-          id="botName"
-          value={botName}
-          onChange={(e) => setBotName(e.target.value)}
-        />
-        {errors.botName && (
-          <div className="error-message show-message">{errors.botName}</div>
-        )}
+        <div className="row">
+          <div>
+            <label htmlFor="botName">Nome do Chatbot:</label>
+            <input
+              type="text"
+              id="botName"
+              value={botName}
+              onChange={(e) => setBotName(e.target.value)}
+              className="box-text"
+            />
+            {errors.botName && (
+              <div className="error-message show-message">{errors.botName}</div>
+            )}
+          </div>
 
-        <label htmlFor="botVersion">Versão do Chatbot:</label>
-        <select
-          id="botVersion"
-          value={botVersion}
-          onChange={(e) => setBotVersion(e.target.value)}
-        >
-          <option value="gpt-3.5-turbo">GPT-3.5-turbo</option>
-        </select>
+          <div>
+            <label htmlFor="botVersion">Versão do Chatbot:</label>
+            <select
+              id="botVersion"
+              value={botVersion}
+              onChange={(e) => setBotVersion(e.target.value)}
+              className="box-text"
+            >
+              <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+            </select>
+          </div>
+        </div>
 
         <label htmlFor="instructions">Prompt:</label>
-        <textarea
+        <input
           id="instructions"
           placeholder="Digite as instruções de comportamento do chatbot aqui"
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
+          rows="4"
+          className="text-area box-text"
         />
         {errors.instructions && (
           <div className="error-message show-message">
@@ -146,19 +151,35 @@ function ChatbotForm() {
         )}
 
         <label htmlFor="file">Documento (.txt):</label>
-        <input
-          type="file"
-          id="file"
-          accept=".txt"
-          onChange={(e) => {
-            setFile(e.target.files[0]);
-          }}
-        />
+        <div className="file-upload-wrapper">
+          <input
+            type="file"
+            id="file"
+            accept=".txt"
+            className="file-input"
+            onChange={(e) => {
+              setFile(e.target.files[0]);
+              document.querySelector(".file-name-display").textContent =
+                e.target.files[0].name;
+            }}
+          />
+          <label htmlFor="file" className="file-label">
+            <span className="file-name-display">
+              Nenhum arquivo selecionado...
+              <img
+                src="../assets/images/file2.png"
+                alt="file-icon"
+                className="file-icon"
+              />
+            </span>
+          </label>
+        </div>
+
         {errors.file && (
           <div className="error-message show-message">{errors.file}</div>
         )}
 
-        <button type="submit" disabled={isSubmitting}>
+        <button className="button-submit" type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Criando Chatbot... Aguarde!" : "Criar Chatbot"}
         </button>
       </form>

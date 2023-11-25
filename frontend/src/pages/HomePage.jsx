@@ -6,30 +6,35 @@ import ChatbotForm from "../components/ChatbotForm";
 import ChatScreen from "../components/ChatScreen";
 
 function HomePage() {
-  const [activeComponent, setActiveComponent] = useState(null);
+  const [activeComponent, setActiveComponent] = useState('');
 
-  const handleComponentChange = (component) => {
-    setActiveComponent(component);
+  const handleComponentChange = (componentName) => {
+    setActiveComponent(componentName);
   };
 
   return (
-    <div className="homepage">
+    <div>
+
       <Home />
-      <nav className="homepage-nav">
-        <button
-          className="nav-button"
-          onClick={() => handleComponentChange(<ChatbotForm />)}
-        >
-          Criar Novo Chatbot
-        </button>
-        <button
-          className="nav-button"
-          onClick={() => handleComponentChange(<ChatScreen />)}
-        >
-          Conversar com o Chatbot
-        </button>
+
+      <nav className="container">
+
+        <a className={`nav-button ${activeComponent === 'ChatbotForm' ? 'nav-button-active span-activate' : 'nav-button-inactive span-inactive'}`} onClick={() => handleComponentChange('ChatbotForm')}>
+          <span>1</span> Base de Informações
+        </a>
+        
+        <a className={`nav-button ${activeComponent === 'ChatScreen' ? 'nav-button-active span-activate' : 'nav-button-inactive span-inactive'}`} onClick={() => handleComponentChange('ChatScreen')}>
+          <span>2</span> Chat
+        </a>
+
       </nav>
-      <div style={{ backgroundColor: "pink" }}>{activeComponent}</div>
+
+      <div>
+
+      {activeComponent === 'ChatbotForm' ? <ChatbotForm /> : null}
+      {activeComponent === 'ChatScreen' ? <ChatScreen /> : null} 
+      
+      </div>
     </div>
   );
 }
