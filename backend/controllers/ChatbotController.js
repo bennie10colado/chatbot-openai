@@ -6,9 +6,14 @@ const createChatbot = async (req, res) => {
     const file = req.file;
     const { name, version, instructions } = req.body;
 
-    await chatbotService.createChatbot(name, version, file, instructions);
+    const chatbotExists = await chatbotService.findChatbotByName(name);
+    if (chatbotExists) {
+      return res.status(400).json({ error: "Um chatbot com esse nome já existe." });
+    }
 
-    res.json({ message: "Welcome to the OpenAI server!" });
+    const newChatbot = await chatbotService.createChatbot(name, version, file, instructions);
+
+    res.status(201).json(newChatbot);
   } catch (error) {
     console.error("Erro inesperado ao criar chatbot:", error.message);
     res.status(500).json({ error: "Erro inesperado ao criar chatbot" });
@@ -62,6 +67,8 @@ const getAvailableBots = async (req, res) => {
       .json({ error: "Erro ao obter a lista de bots disponíveis" });
   }
 };
+
+
 
 module.exports = {
   createChatbot,

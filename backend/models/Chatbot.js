@@ -4,6 +4,7 @@ const chatbotSchema = new mongoose.Schema(
   {
     name: {
       type: String,
+      unique: true,
       required: true,
     },
     version: {
@@ -17,11 +18,11 @@ const chatbotSchema = new mongoose.Schema(
     fileContent: {
       type: String,
     },
-    openaiResponse: {
-      type: String,
-    },
+    //openaiResponse: {
+    //  type: String,
+    //},
   },
-  { collection: "chatbot-collection" }
+  { collection: "chatbots-collection" }
 );
 
 const Chatbot = mongoose.model("Chatbot", chatbotSchema);

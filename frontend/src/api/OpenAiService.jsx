@@ -14,7 +14,7 @@ const createChatbot = async (formData) => {
       }
     );
 
-    if (response.status === 200) {
+    if (response.status === 200 || 201) {
       console.log('Chatbot criado com sucesso!');
       return response.data;
     } else {

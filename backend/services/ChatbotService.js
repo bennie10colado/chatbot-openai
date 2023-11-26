@@ -29,12 +29,14 @@ const createChatbot = async (name, version, file, instructions) => {
     throw new Error("Resposta da OpenAI não encontrada");
   }
 
+  console.log("A resposta da OpenAi sobre a criação do bot e os seus dados: ", openaiResponse);
+  
   const chatbotData = new Chatbot({
     name,
     version,
     instructions,
-    openaiResponse,
     fileContent,
+    //openaiResponse,
   });
 
   try {
@@ -99,6 +101,10 @@ const getBotInformation = async (botName) => {
   }
 };
 
+const findChatbotByName = async (name) => {
+  return await Chatbot.findOne({ name });
+};
+
 module.exports = {
   createChatbot,
   sendMessage,
@@ -106,4 +112,5 @@ module.exports = {
   getSegments,
   getAvailableBots,
   getBotInformation,
+  findChatbotByName,
 };
