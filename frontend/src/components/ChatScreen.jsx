@@ -10,13 +10,10 @@ function ChatScreen() {
   const [input, setInput] = useState("");
   const [selectedChatbot, setSelectedChatbot] = useState("");
   const [availableBots, setAvailableBots] = useState([]);
-  const [botSelected, setBotSelected] = useState(true);
-  const cancelToken = useRef(null);
+  const [botSelected, setBotSelected] = useState(false);
+  const cancelToken = useRef(axios.CancelToken.source());
   const [isLoading, setIsLoading] = useState(false);
-
-  const getSelectedBotDetails = () => {
-    return availableBots.find((bot) => bot.name === selectedChatbot);
-  };
+  const isSelectDisabled = botSelected && isLoading;
 
   useEffect(() => {
     const fetchAvailableBots = async () => {
@@ -30,6 +27,28 @@ function ChatScreen() {
 
     fetchAvailableBots();
   }, []);
+
+  const getSelectedBotDetails = () => {
+    return availableBots.find((bot) => bot.name === selectedChatbot);
+  };
+
+  useEffect(() => {
+    const handleBotChange = () => {
+      setMessages([]);
+      cancelToken.current.cancel("Troca de bot foi iniciada.");
+      cancelToken.current = axios.CancelToken.source();
+      setBotSelected(true);
+    };
+
+    handleBotChange();
+    return () => {
+      if (cancelToken.current) {
+        cancelToken.current.cancel(
+          "Componente ChatScreen está sendo desmontado."
+        );
+      }
+    };
+  }, [selectedChatbot]);
 
   useEffect(() => {
     setMessages([]);
@@ -49,6 +68,10 @@ function ChatScreen() {
 
     if (input.trim() !== "") {
       setIsLoading(true);
+
+      cancelToken.current.cancel("Nova mensagem está sendo enviada.");
+      cancelToken.current = axios.CancelToken.source();
+
       const userMessage = { id: messages.length, text: input, sender: "user" };
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
@@ -57,7 +80,8 @@ function ChatScreen() {
       try {
         const botResponse = await openaiService.sendMessage(
           input,
-          selectedChatbot
+          selectedChatbot,
+          { cancelToken: cancelToken.current.token }
         );
 
         setMessages((prevMessages) => [
@@ -68,12 +92,13 @@ function ChatScreen() {
         scrollToBottom();
       } catch (error) {
         if (axios.isCancel(error)) {
-          console.log("Requisição cancelada devido a mudança de bot ativo");
+          console.log("Requisição cancelada: ", error.message);
         } else {
           console.error("Erro ao enviar mensagem para a API da OpenAI:", error);
         }
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
   };
 
@@ -93,14 +118,15 @@ function ChatScreen() {
           value={selectedChatbot}
           onChange={(e) => {
             setSelectedChatbot(e.target.value);
-            setBotSelected(true);
+            setBotSelected(false);
           }}
+          disabled={isSelectDisabled}
         >
           <option value="" disabled>
             Selecione um chatbot
           </option>
           {availableBots.map((bot) => (
-            <option key={bot._id} value={bot.name}>
+            <option className="select-option" key={bot._id} value={bot.name}>
               {bot.name} - {bot.version}
             </option>
           ))}
@@ -126,7 +152,6 @@ function ChatScreen() {
         <div id="message-area" className="message-area">
           {messages.map((message) => (
             <div key={message.id}>
-              
               <div className={`message-container ${message.sender}-container`}>
                 <div className={`sender-identifier`}>
                   <span>{message.sender === "user" ? "Você" : "Bot"}</span>
@@ -140,7 +165,6 @@ function ChatScreen() {
                   </span>
                 </div>
               </div>
-
             </div>
           ))}
         </div>
@@ -148,7 +172,7 @@ function ChatScreen() {
         {isLoading && (
           <div className="spinner-class">
             <div className="beat-loader">
-              <BeatLoader color="#007bff" />
+              <BeatLoader color={"var(--primary)"} />
             </div>
           </div>
         )}
@@ -160,8 +184,9 @@ function ChatScreen() {
             onChange={(e) => setInput(e.target.value)}
             className="message-input"
             id="user-input"
+            disabled={isLoading}
           />
-          <button type="submit" className="send-button">
+          <button type="submit" className="send-button" disabled={isLoading}>
             Enviar
           </button>
         </form>

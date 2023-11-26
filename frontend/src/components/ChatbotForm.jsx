@@ -165,12 +165,7 @@ function ChatbotForm() {
           />
           <label htmlFor="file" className="file-label">
             <span className="file-name-display">
-              Nenhum arquivo selecionado...
-              <img
-                src="../assets/images/file2.png"
-                alt="file-icon"
-                className="file-icon"
-              />
+              Selecione um arquivo
             </span>
           </label>
         </div>
