@@ -9,7 +9,7 @@ p {
   margin: 0;
   margin-top: 0.5rem;
   font-weight: 600;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
 }
 
 .span-activate span {
@@ -74,4 +74,22 @@ p {
   grid-template-columns: repeat(auto-fit, minmax(0, max-content));
   gap: 1rem;
   border-bottom: 0.125rem solid var(--second_text);
+}
+
+.back-link {
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  margin-top: 0.5rem  ;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.back-link::before {
+  content: "⬅";
+  margin-right: 0.5rem;
 }

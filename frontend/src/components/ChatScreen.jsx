@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-//import { Link } from "react-router-dom";
 import axios from "axios";
 import openaiService from "../api/OpenAiService";
 import "../styles/main.css";
 import { BeatLoader } from "react-spinners";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import { faRobot } from "@fortawesome/free-solid-svg-icons";
 
 function ChatScreen() {
   const [messages, setMessages] = useState([]);
@@ -142,10 +144,19 @@ function ChatScreen() {
         <div className="header-chat">
           {selectedChatbot && getSelectedBotDetails() ? (
             <React.Fragment>
-              <strong>{getSelectedBotDetails().name}</strong>
+              <strong>
+                <>
+                  <FontAwesomeIcon icon={faRobot} />{" "}
+                  {getSelectedBotDetails().name}
+                </>
+              </strong>
             </React.Fragment>
           ) : (
-            "Nenhum bot selecionado"
+            <strong>
+              <>
+                <FontAwesomeIcon icon={faRobot} /> {" Nenhum bot selecionado"}
+              </>
+            </strong>
           )}
         </div>
 
@@ -154,7 +165,19 @@ function ChatScreen() {
             <div key={message.id}>
               <div className={`message-container ${message.sender}-container`}>
                 <div className={`sender-identifier`}>
-                  <span>{message.sender === "user" ? "Você" : "Bot"}</span>
+                  <span>
+                    {message.sender === "user" ? (
+                      <>
+                        {" "}
+                        <FontAwesomeIcon icon={faWhatsapp} /> Você{" "}
+                      </>
+                    ) : (
+                      <>
+                        {" "}
+                        <FontAwesomeIcon icon={faWhatsapp} /> Bot{" "}
+                      </>
+                    )}
+                  </span>
                 </div>
               </div>
 
