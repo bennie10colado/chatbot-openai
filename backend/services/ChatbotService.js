@@ -77,7 +77,7 @@ const getSegments = async () => {
     throw new Error("Nenhum segmento encontrado");
   }
 
-  return chatbots.map((chatbot) => chatbot.openaiResponse).flat();
+  return chatbots.map((chatbot) => chatbot.fileContent).flat();
 };
 
 const getAvailableBots = async () => {
