@@ -136,7 +136,7 @@ function ChatbotForm() {
         </div>
 
         <label htmlFor="instructions">Prompt:</label>
-        <input
+        <textarea
           id="instructions"
           placeholder="Digite as instruções de comportamento do chatbot aqui"
           value={instructions}
