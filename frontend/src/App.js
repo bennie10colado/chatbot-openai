@@ -9,8 +9,6 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/create-bot" element={<ChatbotForm />} />
-        <Route path="/chat" element={<ChatScreen />} />
       </Routes>
     </BrowserRouter>
   );
